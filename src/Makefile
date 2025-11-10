@@ -6,14 +6,20 @@
 #
 #Macros
 
-CC = clang
-CFLAGS = -std=c99 -O2 -Wall -fsanitize=address
-SRC = main.c
+CC = gcc
+CFLAGS = -D_POSIX_C_SOURCE=200112L -std=c99 -O0 -Wall -fsanitize=address
+SRC = main.c server.o
 
 #Reglas explicitas
 
-install: 
+install: main.c server.o
 	$(CC) $(CFLAGS) -o main.elf $(SRC) 
 
+debug: main.c server.o
+	$(CC) $(CFLAGS) -g -o main.elf $(SRC) 
+
 clean:
-	$(RM) main.elf
+	$(RM) main.elf server.o
+
+server.o: server.h server.c
+
