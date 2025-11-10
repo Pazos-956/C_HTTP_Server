@@ -15,5 +15,8 @@
 #define PORT "42069"
 // Peticiones pendientes de aceptar que se pueden almacenar en la cola.
 #define BACKLOG 10
+#define MAXCLIENTLENGTH 1500
 
 int Start_server();
+int Accept_connections(int server_fd);
+void routing(int client_fd, char *token);

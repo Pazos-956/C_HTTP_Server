@@ -1,6 +1,7 @@
 #include "server.h"
 
 int main(){
-    Start_server();
+    int server_fd = Start_server();
+    Accept_connections(server_fd);
     return 0;
 }
