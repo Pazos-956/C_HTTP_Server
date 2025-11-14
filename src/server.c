@@ -14,7 +14,7 @@ struct Server* Start_server(char* port){
     //hints es un addrinfo con información previa para la conexión.
     //servL es un puntero a linked list con los resultados.
     get_st = getaddrinfo(NULL, port, &hints, &servL);
-    if(get_st == 0){
+    if(get_st != 0){
         // gai_strerror convierte el error de getaddrifno a string
         fprintf(stderr, "gai error: %s\n", gai_strerror(get_st));
         exit(1);

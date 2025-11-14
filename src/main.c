@@ -3,88 +3,77 @@
 #include "render.h"
 
 void routing(int client_fd, char *token);
+char *normalize(char *path);
 
 int main(){
-    int client_fd;
-    char client_msg[MAXCLIENTLENGTH];
-    int rec_status;
-    char *token;
+    int client_fd, rec_status;
+    char client_msg[MAXCLIENTLENGTH], path[1024], response[4096];
+    char *render, *token;
     struct Server *server = Start_server("42069");
-    struct Route *route = Init_route("/", "index.html");
     struct Route *node;
+    struct Route *route = Init_route("/", "index.html");
+    memset(response, 0, 4096);
 
+    route = Insert_route(route, "/hola", "hola.html");
     while(1){
         client_fd = accept(server->socket_fd, NULL, NULL);
         rec_status = recv(client_fd, client_msg, MAXCLIENTLENGTH-1, 0);
-        if(rec_status != 0){
+        if(rec_status == 0){
             close(client_fd);
             printf("El usuario ha cerrado la conexión.\n");
             break;
         }else if(rec_status == -1){
             perror("Recv error");
         }
-        //printf("%s", client_msg);
+
         token = strtok(client_msg, " ");
         if(!strcmp(token, "GET")){
             token = strtok(NULL, " ");
-            node = Search_route(route, token);
+            node = Search_route(route, normalize(token));
             if(node == NULL){
-                Render("notfound.html");
+                render = Render("template/notfound.html");
+                strcpy(response, "HTTP/1.1 404 NOT_FOUND\r\n\r\n");
             }else{
-                Render(node->value);
+                strcpy(path, "template/");
+                strcat(path, node->value);
+                strcpy(response, "HTTP/1.1 200 OK\r\n\r\n");
+                render = Render(path);
             }
         }else{
-            Render("notfound.html");
+            strcpy(response, "HTTP/1.1 404 NOT_FOUND\r\n\r\n");
+            render = Render("template/notfound.html");
         }
         
+        strcat(response, render);
+        strcat(response, "\r\n\r\n");
+        send(client_fd, response, strlen(response), 0);
+        
+        memset(response, 0, 4096);
         close(client_fd);
+        free(render);
     }
-    printf("Fuera del loop\n");
-    return 0;
     free(server);
+    Free_routes(route);
     return 0;
 }
 
 char *normalize(char *path){
-    char *dest = malloc(1024);
+    char *dest = malloc(512);
     char *token;
-    memset(dest, 0, 1024);
-    if(strlen(path) >= 1024){
+    memset(dest, 0, 512);
+    if(strlen(path) >= 512){
         strcpy(dest, "toobig");
         return dest;
     }
     if((token = strtok(path,"/")) == NULL){
-        strcpy(dest, "index");
+        strcpy(dest, "/");
         return dest;
     }
+    strcat(dest, "/");
     strcat(dest, token);
     while((token = strtok(NULL, "/")) != NULL){
         strcat(dest, "/");
         strcat(dest, token);
     };
     return dest;
-}
-
-void routing(int client_fd, char *token){
-    char *path;
-    char *server_msg = "HTTP/1.1 200 OK\n"
-        "Connection: close\r\n\n"
-        "<html><h1>Hello World!<!h1><!html>\n";
-    char *notfound_msg = "HTTP/1.1 404 NOT FOUND\n"
-        "Connection: close\r\n\n"
-        "<html><h1>No se ha encontrado la pagina!<!h1><!html>\n";
-    char *server_index = "HTTP/1.1 200 OK\n"
-        "Connection: close\r\n\n"
-        "<html><h1>Esto es el indice!<!h1><!html>\n";
-    path = normalize(strtok(token, "?"));
-    printf("\n%d\n", strcmp("/", path));
-    if(!strcmp("hola", path)){
-        send(client_fd, server_msg, strlen(server_msg), 0);
-    }else if(!strcmp("index", path)){
-        send(client_fd, server_index, strlen(server_index), 0);
-    }else{
-        send(client_fd, notfound_msg, strlen(notfound_msg), 0);
-    }
-    free(path);
-    return;
 }

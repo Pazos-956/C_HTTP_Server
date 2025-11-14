@@ -8,13 +8,11 @@ struct Route *Search_route(struct Route *root, char *key){
         return root;
     }
     if(strcmp(key, root->key) < 0){
-        search_route(root->left, key);
+        Search_route(root->left, key);
     }
     if(strcmp(key, root->key) > 0){
-        search_route(root->right, key);
+        Search_route(root->right, key);
     }
-    // No debería llegar pero asi no me sale un warning en el editor
-    return NULL;
 }
 
 struct Route *Init_route(char *key, char *value){
@@ -25,6 +23,19 @@ struct Route *Init_route(char *key, char *value){
     ruta->left = NULL;
     ruta->right = NULL;
     return ruta;
+}
+
+void Free_routes(struct Route *root){
+    if(root->left != NULL){
+        Free_routes(root->left);
+    }
+    if(root->right != NULL){
+        Free_routes(root->right);
+    }
+    if(root->left == NULL && root->right == NULL){
+        free(root);
+    }
+    return;
 }
 
 int height_route(struct Route *root){
@@ -71,17 +82,16 @@ struct Route *l_rotate(struct Route *node){
 }
 
 struct Route *Insert_route(struct Route *root, char *key, char *value){
-    struct Route *node;
     if(root == NULL){
-        root = init_route(key, value);
+        root = Init_route(key, value);
         return root;
     }else if(strcmp(key, root->key) == 0){
         printf("Ya existe esta ruta!!");
         exit(1);
     }else if(strcmp(key, root->key) < 0){
-        root->left = insert_route(root->left, key, value);
+        root->left = Insert_route(root->left, key, value);
     }else if(strcmp(key, root->key) > 0){
-        root->right = insert_route(root->right, key, value);
+        root->right = Insert_route(root->right, key, value);
     }
 
     root->height = 1 + max(height_route(root->left), height_route(root->right));

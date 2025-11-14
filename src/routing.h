@@ -21,3 +21,4 @@ struct Route *Insert_route(struct Route *root, char *key, char *value);
 // struct Route *delete_route(struct Route *root, char *key, char *value);
 struct Route *Init_route(char *key, char *value);
 void Print_tree(struct Route *root);
+void Free_routes(struct Route *root);
