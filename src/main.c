@@ -29,7 +29,9 @@ int main(){
         token = strtok(client_msg, " ");
         if(!strcmp(token, "GET")){
             token = strtok(NULL, " ");
-            node = Search_route(route, normalize(token));
+            token = normalize(token);
+            node = Search_route(route, token);
+            free(token);
             if(node == NULL){
                 render = Render("template/notfound.html");
                 strcpy(response, "HTTP/1.1 404 NOT_FOUND\r\n\r\n");
@@ -52,8 +54,8 @@ int main(){
         close(client_fd);
         free(render);
     }
-    free(server);
     Free_routes(route);
+    free(server);
     return 0;
 }
 
@@ -64,16 +66,16 @@ char *normalize(char *path){
     if(strlen(path) >= 512){
         strcpy(dest, "toobig");
         return dest;
-    }
-    if((token = strtok(path,"/")) == NULL){
+    }else if((token = strtok(path,"/")) == NULL){
         strcpy(dest, "/");
         return dest;
-    }
-    strcat(dest, "/");
-    strcat(dest, token);
-    while((token = strtok(NULL, "/")) != NULL){
+    }else{
         strcat(dest, "/");
         strcat(dest, token);
-    };
+        while((token = strtok(NULL, "/")) != NULL){
+            strcat(dest, "/");
+            strcat(dest, token);
+        };
+    }
     return dest;
 }
