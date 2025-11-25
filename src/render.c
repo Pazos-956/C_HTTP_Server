@@ -4,7 +4,7 @@ char *Render(char *filename){
     FILE *file = fopen(filename, "r");
     
     if(file == NULL){
-        printf("Error, no existe el fichero");
+        printf("Error, no existe el fichero  %s\n", filename);
         return NULL;
     }
     if(fseek(file, 0, SEEK_END)) return NULL;

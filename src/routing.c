@@ -1,17 +1,19 @@
 #include "routing.h"
 
 struct Route *Search_route(struct Route *root, char *key){
+    if(key == NULL){
+        printf("Error en search, key es nulo");
+        exit(1);
+    }
     if(root == NULL){
         return NULL;
     }
     if(strcmp(key, root->key) == 0){
         return root;
-    }
-    if(strcmp(key, root->key) < 0){
-        Search_route(root->left, key);
-    }
-    if(strcmp(key, root->key) > 0){
-        Search_route(root->right, key);
+    }else if(strcmp(key, root->key) < 0){
+        return Search_route(root->left, key);
+    }else if(strcmp(key, root->key) > 0){
+        return Search_route(root->right, key);
     }
 }
 
@@ -32,10 +34,7 @@ void Free_routes(struct Route *root){
     if(root->right != NULL){
         Free_routes(root->right);
     }
-    if(root->left == NULL && root->right == NULL){
-        free(root);
-    }
-    return;
+    free(root);
 }
 
 int height_route(struct Route *root){

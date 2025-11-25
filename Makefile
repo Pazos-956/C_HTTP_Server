@@ -16,8 +16,9 @@ exec = main.elf
 
 #Reglas explicitas
 
-$(exec): $(objects)
-	gcc  $(flags) -g -o $@ src/main.c $^
+$(exec): $(objects) src/main.c
+
+	gcc  $(flags) -g -o $@ $^
 
 %.o: %.c %.h
 	gcc -c $(flags) $< -o $@
